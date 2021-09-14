@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app" ng-controller="main">
+<head>
+    <meta charset="UTF-8">
+    <title>Sell product</title>
+</head>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/livestorm/livestorm-plugin/dist/assets/css/style.css">
+
+
+<style>
+    .modal-title {
+        text-align: left;
+        height: 35px;
+        padding: 5px 15px;
+    }
+
+    .modal-content {
+        padding: 30px 15px 20px 15px;
+        min-height: 320px;
+        max-height: 320px;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .modal-content h1 {
+        font-size: 16px;
+        margin: 15px 0px;
+        font-weight: 500;
+    }
+
+    .modal-footer {
+        text-align: center;
+        height: 25px;
+        margin-top: 25px;
+    }
+
+    textarea {
+        height: auto !important;
+    }
+
+    .center-button {
+        margin: 0 auto;
+    }
+
+    .full-button {
+        width: 100%;
+    }
+
+    .empty-list {
+        text-align: center;
+    }
+
+    .row {
+        display: flex;
+        margin: 6px 0;
+    }
+
+    .col-10 {
+        flex: 80%;
+    }
+
+    .col-2 {
+        flex: 20%;
+    }
+
+    .contain-text {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        padding: 8px 15px 0px 0px;
+    }
+</style>
+
+<body>
+
+<div class="modal-title">
+    <span class="ls-text-20-semibold">{{sectionTitle}}</span>
+</div>
+
+<div class="modal-content">
+
+    <div ng-if="currentSection === 'selectProduct'">
+
+        <div>
+
+            <div class="empty-list" ng-if="products.length === 0">
+                <img src="https://livestorm-ireland-plugin-assets.s3-eu-west-1.amazonaws.com/683c3516-5cd9-4c31-89bd-b8a6b7356461/list-empty.png" height="150">
+                <p>Your list is empty</p>
+            </div>
+
+
+            <div class="container">
+                <div class="row" ng-repeat="product in products">
+                    <div class="col-10 contain-text">
+                        <p class="ls-text-16-medium">{{product.name}}</p>
+                    </div>
+                    <div class="col-2">
+                        <div class="ls-text-center">
+                            <button class="ls-button ls-button-secondary center-button" ng-click="shareProduct($index)">
+                                <div class="ls-button-wrapper">
+                                    Share
+                                </div>
+                            </button>
+                            <p class="ls-text-9-semibold"><a href="" ng-click="deleteProduct($index)">DELETE</a></p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+            <button class="ls-button ls-button-primary full-button" ng-click="goTo('newProduct')">
+                <div class="ls-button-wrapper ls-center">
+                    Share new product
+                </div>
+            </button>
+
+        </div>
+
+
+
+
+    </div>
+
+
+    <div ng-if="currentSection === 'newProduct'">
+
+        <form class="ls-form ls-mt-2">
+
+            <div>
+                <label class="ls-label">Product name</label>
+                <input class="ls-input" type="text" placeholder="" ng-model="product.name">
+            </div>
+
+            <div>
+                <label class="ls-label">Short description</label>
+                <textarea class="ls-input ls-textarea" rows="4" ng-model="product.description"></textarea>
+            </div>
+
+            <button class="ls-button ls-button-primary" ng-click="shareProduct()">
+                <div class="ls-button-wrapper ls-center">
+                    Share
+                </div>
+            </button>
+
+        </form>
+    </div>
+
+
+
+
+</div>
+
+<div class="modal-footer">
+    <span class="ls-text-12-regular">Live seller plugin for Livestorm</span>
+</div>
+
+
+<script crossorigin src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+<script>
+
+    addEventListener("message", (event) => {
+        console.log(">>>", event);
+    });
+
+    angular.module('app', []).controller('main', function ($scope) {
+
+        $scope.products = JSON.parse('{{products}}');
+
+        $scope.product = {
+            name: '',
+            description: ''
+        };
+
+        $scope.goTo = (sectionName) => {
+
+            $scope.currentSection = sectionName;
+
+            if(sectionName === 'selectProduct')
+                $scope.sectionTitle = 'Select a product';
+            else if(sectionName === 'newProduct')
+                $scope.sectionTitle = 'New product';
+
+        };
+
+        $scope.shareProduct = async (index) => {
+
+            if(index >= 0)
+                postMessage({ cmd: 'shareProduct', data: $scope.products[index] });
+            else
+                postMessage({ cmd: 'saveAndShareProduct', data: {...$scope.product} });
+
+            $scope.product = {};
+            closeModal();
+
+        }
+
+        $scope.deleteProduct = index => {
+
+            $scope.products.splice(index, 1);
+            postMessage({ cmd: 'deleteProduct', data: {index} });
+
+        };
+
+        $scope.goTo('selectProduct');
+
+    });
+
+</script>
+</body>
+</html>

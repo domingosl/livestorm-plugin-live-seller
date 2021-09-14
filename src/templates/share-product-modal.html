@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Share product</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/livestorm/livestorm-plugin/dist/assets/css/style.css">
+
+    <style>
+        .modal-title {
+            text-align: left;
+            height: 35px;
+            padding: 5px 15px;
+        }
+
+        .modal-content {
+            padding: 20px 15px;
+        }
+
+        .modal-footer {
+            text-align: center;
+            height: 25px;
+            margin-top: 25px;
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="modal-title">
+    <span class="ls-text-20-semibold">Share a product</span>
+</div>
+
+<div class="modal-content">
+
+    <form class="ls-form ls-mt-2">
+
+
+        <button class="ls-button ls-button-primary" onclick="Livestorm.PubSub.publish('say-hello', { data: { custom: 'payload' }})">
+            <div class="ls-button-wrapper ls-center">
+                New product
+            </div>
+        </button>
+
+
+        //list of products here...
+
+    </form>
+</div>
+
+<div class="modal-footer">
+    <span class="ls-text-12-regular">Live seller plugin for Livestorm</span>
+</div>
+
+
+</body>
+</html>

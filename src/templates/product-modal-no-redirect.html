@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="app" ng-controller="main">
+<head>
+    <meta charset="UTF-8">
+    <title>Product page</title>
+</head>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/livestorm/livestorm-plugin/dist/assets/css/style.css">
+
+
+<style>
+    .container {
+        padding: 50px 25px;
+    }
+
+</style>
+
+<body class="container">
+<p>no redirect example</p>
+<div id="paypal-button-container"></div>
+
+
+<script>
+
+    const params = {
+        description: '{{productName}}',
+        currency: 'EUR',
+        value: 10,
+        shippingCost: 1,
+        clientId: 'sb'
+    };
+
+    function loadScript(url, callback) {
+
+        console.log("loading script", { url });
+
+        const head = document.head;
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = url;
+
+        script.onreadystatechange = callback;
+        script.onload = callback;
+
+        head.appendChild(script);
+        console.log("script appended");
+    }
+
+
+    function initPayPalButton() {
+
+        paypal.Buttons({
+            style: {
+                shape: 'rect',
+                color: 'gold',
+                layout: 'vertical',
+                label: 'paypal',
+
+            },
+
+            createOrder: function (data, actions) {
+                return actions.order.create({
+                    purchase_units: [{
+                        "description": params.description,
+                        "amount": {
+                            "currency_code": params.currency,
+                            "value": params.value,
+                            "breakdown": {
+                                "item_total": {"currency_code": params.currency, "value": params.value + params.shippingCost},
+                                "shipping": {"currency_code": params.currency, "value": params.shippingCost},
+                                "tax_total": {"currency_code": params.currency, "value": 0}
+                            }
+                        }
+                    }]
+                });
+            },
+
+            onApprove: function (data, actions) {
+                return actions.order.capture().then(function (orderData) {
+
+                    // Full available details
+                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+                    // Show a success message within this page, e.g.
+                    const element = document.getElementById('paypal-button-container');
+                    element.innerHTML = '';
+                    element.innerHTML = '<h3>Thank you for your payment!</h3>';
+
+                    // Or go to another URL:  actions.redirect('thank_you.html');
+
+                });
+            },
+
+            onError: function (err) {
+                console.log(err);
+            }
+        }).render('#paypal-button-container');
+
+    }
+
+    const url = 'https://www.paypal.com/sdk/js?client-id=' + params.clientId +'&currency=' + params.currency + '&disable-funding=sofort,mybank,bancontact,blik,eps,giropay,ideal,mercadopago,p24,sepa,venmo';
+
+    loadScript(url, initPayPalButton);
+
+</script>
+
+</body>
+</html>

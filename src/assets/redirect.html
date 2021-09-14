@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        const params = Object.fromEntries(urlSearchParams.entries());
+
+        //setTimeout(()=>{ window.location.href = params.to; }, 5000);
+
+    </script>
+    <title>Page Redirection</title>
+</head>
+<body>
+<p>please wait...</p>
+<a href="http://172.26.112.1:8080/payment-page.html/?clientId=sb&currency=EUR&description=Some%20where&value=10&shippingCost=2&rand=0.3088565734401656" target="_blank">link!</a>
+<input type="button" value="Open a Popup Window" onclick="window.open('http://172.26.112.1:8080/payment-page.html/?clientId=sb&currency=EUR&description=Some%20where&value=10&shippingCost=2&rand=0.3088565734401656','popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');">
+</body>
+</html>
