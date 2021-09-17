@@ -2,22 +2,15 @@ import Livestorm from '@livestorm/plugin';
 
 const appTpl = require('./templates/app.html').default;
 
-const productModalTpl = require('./templates/product-modal-redirect.html').default;
-//const productModalTpl = require('./templates/product-modal-no-redirect.html').default;
-
-const paymentsPageURL = "https://livestorm-ireland-plugin-assets.s3-eu-west-1.amazonaws.com/a0ac924c-ce41-4e3d-9a29-b6f05a01ec8c/payment-page.html";
+const productModalTpl = require('./templates/product-modal-paypal.html').default;
 
 export default async function () {
 
     const { is_host } = await Livestorm.Users.me();
 
-
-/*    Livestorm.PubSub.subscribe('webhook', (payload) => {
-        console.log(">>>", payload);
-        Livestorm.NotificationCenter.showIframe('<div class="ls-text-XX-medium" style="padding: 5px 10px; background: white; border-radius: 10px; text-align: center">New info from webhook! {{ content }}</div>', { content: JSON.stringify(payload) });
-    });*/
-
-    //console.log("Event type id", Livestorm.Configuration.eventTypeId, "Org ID", Livestorm.Configuration.organizationId, "Session ID", Livestorm.Configuration.sessionId);
+    let paymentProvider = JSON.parse(
+        await Livestorm.Storage.getItem('paymentProvider') ||
+        "{ \"provider\": \"paypal\", \"clientId\": \"\" }");
 
     const persistProducts = async products => {
         await Livestorm.Storage.setItem('sellerPluginData', JSON.stringify(products));
@@ -39,7 +32,11 @@ export default async function () {
             variables: {
                 productName: product.name,
                 productDescription: product.description,
-                paymentLink: paymentsPageURL + "?clientId=sb&currency=EUR&description=" + encodeURIComponent(String(product['name'])) + "&value=10&shippingCost=2&rand=" + Math.random()
+                productCurrency: product.currency,
+                productPrice: product.price,
+                productShippingCost: product.shippingCost,
+                //paypalClientId: 'AW7VWERM4qgJ8I4uh4tRxGZmP_dp2ctl13rcLSt9wtnmWBPnF1uReJRRb1wEYij0vKcr27CnT84lG9mi'
+                paypalClientId: paymentProvider['clientId']
             },
             onMessage: message => {
                 console.log("Data from iframe", { message });
@@ -48,8 +45,9 @@ export default async function () {
 
     });
 
+
     Livestorm.Stage.Buttons.registerShareButton({
-        label: 'Share a Product',
+        label: 'Live seller',
         imageSource: 'https://livestorm-ireland-plugin-assets.s3-eu-west-1.amazonaws.com/5d0fc077-c9ee-47b6-9bee-4f2f59c6d859/logo-small.png',
         onClick: async () => {
 
@@ -58,9 +56,11 @@ export default async function () {
             Livestorm.Modal.showIframe({
                 template: appTpl,
                 variables: {
+                    paypalClientId: paymentProvider['clientId'],
                     sectionTitle: '{{sectionTitle}}',
                     products: JSON.stringify(products),
-                    product: { name: '{{product.name}}', description: '{{product.description}}' }
+                    product: { name: '{{product.name}}', description: '{{product.description}}' },
+                    productDigitalGood: 'product.digitalGood'
                 },
                 onMessage: async (message) => {
 
@@ -81,6 +81,11 @@ export default async function () {
                         products.splice(message['data']['index'], 1);
                         await persistProducts(products);
 
+                    }
+                    else if(message['cmd'] === 'savePaymentProvider') {
+
+                        await Livestorm.Storage.setItem('paymentProvider', JSON.stringify(message['data']));
+                        paymentProvider = message['data'];
                     }
                 }
             });

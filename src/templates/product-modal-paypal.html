@@ -9,14 +9,32 @@
 
 
 <style>
+
     .container {
         padding: 50px 25px;
+        min-height: 500px;
+    }
+
+    h1 {
+        font-size: 30px;
+        margin-bottom: 15px;
+        margin-left: -5px;
+    }
+
+    p {
+        font-size: 15px;
+    }
+
+    #paypal-button-container {
+        margin-top: 25px;
     }
 
 </style>
 
 <body class="container">
-<p>no redirect example</p>
+<h1>{{productName}}</h1>
+<p>{{productDescription}}</p>
+
 <div id="paypal-button-container"></div>
 
 
@@ -24,10 +42,10 @@
 
     const params = {
         description: '{{productName}}',
-        currency: 'EUR',
-        value: 10,
-        shippingCost: 1,
-        clientId: 'sb'
+        currency: '{{productCurrency}}',
+        value: parseFloat('{{productPrice}}'),
+        shippingCost: parseFloat('{{productShippingCost}}'),
+        clientId: '{{paypalClientId}}'
     };
 
     function loadScript(url, callback) {
@@ -49,6 +67,7 @@
 
     function initPayPalButton() {
 
+
         paypal.Buttons({
             style: {
                 shape: 'rect',
@@ -59,20 +78,27 @@
             },
 
             createOrder: function (data, actions) {
-                return actions.order.create({
+
+                const payload = {
                     purchase_units: [{
                         "description": params.description,
                         "amount": {
                             "currency_code": params.currency,
-                            "value": params.value,
+                            "value": params.value + (params.shippingCost || 0),
                             "breakdown": {
-                                "item_total": {"currency_code": params.currency, "value": params.value + params.shippingCost},
-                                "shipping": {"currency_code": params.currency, "value": params.shippingCost},
+                                "item_total": {"currency_code": params.currency, "value": params.value },
                                 "tax_total": {"currency_code": params.currency, "value": 0}
                             }
                         }
                     }]
-                });
+                };
+
+                if(params.shippingCost > 0)
+                    payload.purchase_units[0].amount.breakdown.shipping = {"currency_code": params.currency, "value": params.shippingCost};
+
+                console.log(payload);
+
+                return actions.order.create(payload);
             },
 
             onApprove: function (data, actions) {

@@ -56,8 +56,16 @@
         margin: 6px 0;
     }
 
+    .col {
+        padding-left: 10px;
+    }
+
     .col-10 {
         flex: 80%;
+    }
+
+    .col-6 {
+        flex: 50%;
     }
 
     .col-2 {
@@ -69,6 +77,18 @@
         overflow: hidden;
         text-overflow: ellipsis;
         padding: 8px 15px 0px 0px;
+    }
+
+    input:disabled {
+        background: #dddddd;
+    }
+
+    .disabled {
+        opacity: 0.5;
+    }
+
+    .ls-switch {
+        margin-top: 10px;
     }
 </style>
 
@@ -84,8 +104,18 @@
 
         <div>
 
+            <div ng-show="!payments.clientId" class="ls-warning-message ls-warning-error">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line stroke-width="2" x1="12" y1="8" x2="12" y2="12"></line>
+                    <line stroke-width="2" x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <div>You need to <a href="" ng-click="goTo('paymentProvider')">setup</a> a Payments provider</div>
+            </div>
+
             <div class="empty-list" ng-if="products.length === 0">
-                <img src="https://livestorm-ireland-plugin-assets.s3-eu-west-1.amazonaws.com/683c3516-5cd9-4c31-89bd-b8a6b7356461/list-empty.png" height="150">
+                <img src="https://livestorm-ireland-plugin-assets.s3-eu-west-1.amazonaws.com/683c3516-5cd9-4c31-89bd-b8a6b7356461/list-empty.png"
+                     height="150">
                 <p>Your list is empty</p>
             </div>
 
@@ -109,33 +139,85 @@
                 </div>
             </div>
 
-            <br />
+            <br/>
             <button class="ls-button ls-button-primary full-button" ng-click="goTo('newProduct')">
                 <div class="ls-button-wrapper ls-center">
                     Share new product
                 </div>
+                <a ng-show="payments.clientId" href="" ng-click="goTo('paymentProvider')">Change your Payment provider</a>
             </button>
 
         </div>
 
 
-
-
     </div>
-
 
     <div ng-if="currentSection === 'newProduct'">
 
         <form class="ls-form ls-mt-2">
 
             <div>
-                <label class="ls-label">Product name</label>
-                <input class="ls-input" type="text" placeholder="" ng-model="product.name">
+                <label class="ls-label">Name</label>
+                <input class="ls-input" type="text" placeholder="" ng-model="product.name" maxlength="60">
             </div>
 
             <div>
                 <label class="ls-label">Short description</label>
-                <textarea class="ls-input ls-textarea" rows="4" ng-model="product.description"></textarea>
+                <textarea class="ls-input ls-textarea" rows="4" ng-model="product.description"
+                          maxlength="250"></textarea>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div>
+                        <label class="ls-label">Price</label>
+                        <input class="ls-input" type="number" ng-model="product.price"/>
+                    </div>
+                </div>
+                <div class="col col-6">
+                    <div>
+                        <label class="ls-label">Currency</label>
+                        <select class="ls-input" ng-model="product.currency">
+                            <option value="EUR">Euro</option>
+                            <option value="USD">US Dollar</option>
+                            <option value="GBP">British pound</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <div>
+                        <label class="ls-label">Digital good</label>
+                        <br/>
+                        <div class="ls-tooltip">
+                            <label class="ls-switch ls-switch-blue"> <!-- The container on which you add the classes -->
+                                <input type="checkbox" ng-model="product.digitalGood">
+                                <!-- The actual input, no JS here, just get its value -->
+                                <div></div> <!-- This div controls the rounded element that moves -->
+                                <div></div> <!-- This div is in charge of the changing background color -->
+                            </label>
+                            <span class="ls-tooltip-text ls-tooltip-top">Check this is your product does not need shipping</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col col-6">
+                    <div>
+                        <label class="ls-label" ng-class="{disabled: {{productDigitalGood}}}">Shipping cost</label>
+                        <input class="ls-input" ng-disabled="{{productDigitalGood}}" type="number"
+                               ng-model="product.shippingCost"/>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-show="formError" class="ls-warning-message ls-warning-error">
+                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line stroke-width="2" x1="12" y1="8" x2="12" y2="12"></line>
+                    <line stroke-width="2" x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <div>Please complete all fields in the form</div>
             </div>
 
             <button class="ls-button ls-button-primary" ng-click="shareProduct()">
@@ -147,7 +229,28 @@
         </form>
     </div>
 
+    <div ng-if="currentSection === 'paymentProvider'">
 
+        <form class="ls-form ls-mt-2">
+            <div>
+                <label class="ls-label">Provider</label>
+                <select class="ls-input" ng-model="payments.provider" ng-init="paypal">
+                    <option value="paypal">Paypal</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="ls-label">Client ID</label>
+                <input class="ls-input" type="text" placeholder="" ng-model="payments.clientId" maxlength="300">
+            </div>
+
+            <button class="ls-button ls-button-primary" ng-click="savePaymentProvider()">
+                <div class="ls-button-wrapper ls-center">
+                    Save
+                </div>
+            </button>
+        </form>
+    </div>
 
 
 </div>
@@ -173,23 +276,46 @@
             description: ''
         };
 
+        $scope.payments = {
+            provider: 'paypal',
+            clientId: "{{paypalClientId}}"
+        };
+
+        $scope.savePaymentProvider = () => {
+            postMessage({
+                cmd: 'savePaymentProvider', data: $scope.payments
+            });
+
+            $scope.goTo('selectProduct');
+        };
+
         $scope.goTo = (sectionName) => {
 
             $scope.currentSection = sectionName;
 
-            if(sectionName === 'selectProduct')
-                $scope.sectionTitle = 'Select a product';
-            else if(sectionName === 'newProduct')
-                $scope.sectionTitle = 'New product';
+            if (sectionName === 'selectProduct')
+                $scope.sectionTitle = 'Select a product/service';
+            else if (sectionName === 'newProduct')
+                $scope.sectionTitle = 'New product/service';
 
         };
 
         $scope.shareProduct = async (index) => {
 
-            if(index >= 0)
-                postMessage({ cmd: 'shareProduct', data: $scope.products[index] });
+            if (!index && index !== 0) {
+                if (!$scope.product.name || !$scope.product.description || !$scope.product.price || !$scope.product.currency)
+                    return $scope.formError = true;
+
+                if (!$scope.product.digitalGood && !$scope.product.shippingCost)
+                    return $scope.formError = true;
+            }
+
+            $scope.formError = false;
+
+            if (index >= 0)
+                postMessage({cmd: 'shareProduct', data: $scope.products[index]});
             else
-                postMessage({ cmd: 'saveAndShareProduct', data: {...$scope.product} });
+                postMessage({cmd: 'saveAndShareProduct', data: {...$scope.product}});
 
             $scope.product = {};
             closeModal();
@@ -199,7 +325,7 @@
         $scope.deleteProduct = index => {
 
             $scope.products.splice(index, 1);
-            postMessage({ cmd: 'deleteProduct', data: {index} });
+            postMessage({cmd: 'deleteProduct', data: {index}});
 
         };
 
