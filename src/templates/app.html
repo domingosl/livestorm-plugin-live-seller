@@ -90,6 +90,11 @@
     .ls-switch {
         margin-top: 10px;
     }
+
+    .small-txt {
+        font-size: 12px;
+        color: #666;
+    }
 </style>
 
 <body>
@@ -144,7 +149,8 @@
                 <div class="ls-button-wrapper ls-center">
                     Share new product
                 </div>
-                <a ng-show="payments.clientId" href="" ng-click="goTo('paymentProvider')">Change your Payment provider</a>
+                <a ng-show="payments.clientId" href="" ng-click="goTo('paymentProvider')">Change your Payment
+                    provider</a>
             </button>
 
         </div>
@@ -237,10 +243,12 @@
                 <select class="ls-input" ng-model="payments.provider" ng-init="paypal">
                     <option value="paypal">Paypal</option>
                 </select>
+                <p class="small-txt">more in the future!</p>
             </div>
 
             <div>
-                <label class="ls-label">Client ID</label>
+                <label class="ls-label">Client ID</label> <a href="https://developer.paypal.com/docs/api-basics/manage-apps/" target="_blank" class="small-txt">Where do I find this?</a>
+            </span>
                 <input class="ls-input" type="text" placeholder="" ng-model="payments.clientId" maxlength="300">
             </div>
 

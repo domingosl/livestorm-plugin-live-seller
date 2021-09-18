@@ -27,6 +27,10 @@ export default async function () {
 
         console.log("Got shareProduct", product);
 
+        //comment this if you want to try the sharing as host
+        if(is_host)
+            return console.log("Ignoring share product request since you are the host");
+
         Livestorm.Modal.showIframe({
             template: productModalTpl,
             variables: {
@@ -35,7 +39,6 @@ export default async function () {
                 productCurrency: product.currency,
                 productPrice: product.price,
                 productShippingCost: product.shippingCost,
-                //paypalClientId: 'AW7VWERM4qgJ8I4uh4tRxGZmP_dp2ctl13rcLSt9wtnmWBPnF1uReJRRb1wEYij0vKcr27CnT84lG9mi'
                 paypalClientId: paymentProvider['clientId']
             },
             onMessage: message => {
