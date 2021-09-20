@@ -5,8 +5,8 @@
     <title>Sell product</title>
 </head>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/livestorm/livestorm-plugin/dist/assets/css/style.css">
-
 
 <style>
     .modal-title {
@@ -16,6 +16,7 @@
     }
 
     .modal-content {
+        position: relative;
         padding: 30px 15px 20px 15px;
         min-height: 320px;
         max-height: 320px;
@@ -64,6 +65,14 @@
         flex: 80%;
     }
 
+    .col-9 {
+        flex: 75%
+    }
+
+    .col-8 {
+        flex: 66.66%;
+    }
+
     .col-6 {
         flex: 50%;
     }
@@ -72,11 +81,30 @@
         flex: 20%;
     }
 
+    .col-4 {
+        flex: 33.33%;
+    }
+
+    .col-3 {
+        flex: 25%;
+    }
+
+    .mr-2 {
+        margin-right: 2px;
+    }
+
     .contain-text {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
         padding: 8px 15px 0px 0px;
+    }
+
+    .product-item {
+        background: #f7f7f7;
+        padding: 2px 10px;
+        border-radius: 10px;
+        margin: 5px 0;
     }
 
     input:disabled {
@@ -95,6 +123,18 @@
         font-size: 12px;
         color: #666;
     }
+
+    .bottom-bar {
+        position: absolute;
+        bottom: 0;
+        width: 93%;
+        text-align: center;
+    }
+
+    .far {
+        font-size: 14px;
+    }
+
 </style>
 
 <body>
@@ -126,35 +166,50 @@
 
 
             <div class="container">
-                <div class="row" ng-repeat="product in products">
-                    <div class="col-10 contain-text">
-                        <p class="ls-text-16-medium">{{product.name}}</p>
-                    </div>
-                    <div class="col-2">
-                        <div class="ls-text-center">
-                            <button class="ls-button ls-button-secondary center-button" ng-click="shareProduct($index)">
-                                <div class="ls-button-wrapper">
-                                    Share
-                                </div>
-                            </button>
-                            <p class="ls-text-9-semibold"><a href="" ng-click="deleteProduct($index)">DELETE</a></p>
 
+                <div class="product-item" ng-repeat="product in products">
+
+                    <div class="row">
+                        <div class="col-8 contain-text">
+                            <p class="ls-text-16-medium">{{product.name}}</p>
+                        </div>
+                        <div class="col-4">
+                            <div class="ls-text-center">
+
+                                <button class="ls-button ls-button-secondary ls-float-right"
+                                        ng-click="shareProduct($index)">
+                                    <div class="ls-button-wrapper">
+                                        <i class="fas fa-share-alt"></i> Share
+                                    </div>
+                                </button>
+
+                                <button class="ls-button ls-button-red-secondary ls-float-right mr-2"
+                                        ng-click="deleteProduct($index)">
+                                    <div class="ls-button-wrapper">
+                                        <i class="far fa-trash-alt"></i>
+                                    </div>
+                                </button>
+
+                            </div>
                         </div>
                     </div>
                 </div>
+
+
             </div>
 
-            <br/>
-            <button class="ls-button ls-button-primary full-button" ng-click="goTo('newProduct')">
-                <div class="ls-button-wrapper ls-center">
-                    Share new product
-                </div>
-                <a ng-show="payments.clientId" href="" ng-click="goTo('paymentProvider')">Change your Payment
+            <div class="bottom-bar">
+                <button class="ls-button ls-button-primary full-button" ng-click="goTo('newProduct')">
+                    <div class="ls-button-wrapper ls-center">
+                        Share new product
+                    </div>
+                </button>
+                <a ng-show="payments.clientId" class="small-txt" href="" ng-click="goTo('paymentProvider')">Change your
+                    Payment
                     provider</a>
-            </button>
+            </div>
 
         </div>
-
 
     </div>
 
@@ -247,8 +302,10 @@
             </div>
 
             <div>
-                <label class="ls-label">Client ID</label> <a href="https://developer.paypal.com/docs/api-basics/manage-apps/" target="_blank" class="small-txt">Where do I find this?</a>
-            </span>
+                <label class="ls-label">Client ID</label> <a
+                    href="https://developer.paypal.com/docs/api-basics/manage-apps/" target="_blank" class="small-txt">Where
+                do I find this?</a>
+                </span>
                 <input class="ls-input" type="text" placeholder="" ng-model="payments.clientId" maxlength="300">
             </div>
 
